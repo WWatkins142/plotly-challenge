@@ -32,6 +32,10 @@ function demographicInfo(sample)
 // function to build the graphs
 function buildBarChart(sample)
 {
+    //console.log(sample);
+    //let data = d3.json("samples.json");
+    //console.log(data);
+    
     d3.json("samples.json").then((data) => {
         // grab all of the sample Data
         let sampleData = data.samples;
@@ -78,7 +82,59 @@ function buildBarChart(sample)
 }
 
 // function to build bubble chart
+function buildBubbleChart(sample)
+{
 
+    d3.json("samples.json").then((data) => {
+        // grab all of the sample Data
+        let sampleData = data.samples;
+        //console.log(sampleData);
+
+        
+        //filter based on the value of the sample ( one result from dataset)
+        let result = sampleData.filter(sampleResult => sampleResult.id == sample);
+        //console.log(result);
+        
+        // access index 0 from array
+        let resultData = result[0];
+        //console.log(resultData);
+        
+        // get otu ids, labels, and sample_values
+        let otu_ids = resultData.otu_ids;
+        let otu_labels = resultData.otu_labels;
+        let sample_values = resultData.sample_values;
+        //console.log(otu_ids);
+        //console.log(otu_labels);
+        //console.log(sample_values);
+        
+        // build the bar chart
+        let yticks = otu_ids.slice(0, 10).map(id => `OTU ${id}`);
+        let xValues = sample_values.slice(0,10);
+        let textLabels = otu_labels.slice(0,10);
+      
+
+        let bubbleChart = {
+            y: sample_values,
+            x: otu_ids,
+            text: otu_labels,
+            mode: "markers",
+            marker: {
+                size: sample_values,
+                color: otu_ids,
+                colorscale: "Earth"
+            }
+        }
+
+        let layout = {
+            title: "Bacteria Cultures Per Sample",
+            hovermode:"closest",
+            xaxis: {title: "OTU ID"}
+        };
+
+        Plotly.newPlot("bubble", [bubbleChart], layout);
+       
+    });
+}
 
 // function to initialize the dashboard
 function initalize()
@@ -110,8 +166,11 @@ function initalize()
         // call the function to build the metadata
         demographicInfo(sample1);
 
-        //use function to build bar chart
+        // use function to build bar chart
         buildBarChart(sample1);
+
+        // function to build bubble chart
+        buildBubbleChart(sample1);
 
     });
 }
@@ -123,6 +182,9 @@ function optionChanged(item)
   
     //use function to build bar chart
     buildBarChart(item);
+
+    // function to build bubble chart
+    buildBubbleChart(item);
 }
 // call the initialize function
 initalize();
